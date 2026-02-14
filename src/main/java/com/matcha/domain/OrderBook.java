@@ -37,7 +37,7 @@ public class OrderBook {
         return Collections.unmodifiableList(bidSide);
     }
 
-    public void addOrder(Order order) {
+    public synchronized void addOrder(Order order) {
         if (order.getSide() == Side.ASK) {
             tryMatch(order, bidSide);
             if (order.getQuantity() > 0) {
@@ -66,7 +66,7 @@ public class OrderBook {
                 Order ask = orders.getFirst();
 
                 if (ask.getPrice() <= order.getPrice()) {
-                    logger.info("Matched ask price " + ask.getPrice() + " for order " + order.getTicker());
+                    //logger.info("Matched ask price " + ask.getPrice() + " for order " + order.getTicker());
 
                     if (ask.getQuantity() < order.getQuantity()) {
                         order.setQuantity(order.getQuantity() - ask.getQuantity());
@@ -89,7 +89,7 @@ public class OrderBook {
                 Order bid = orders.getFirst();
 
                 if (bid.getPrice() >= order.getPrice()) {
-                    logger.info("Matched bid price " + bid.getPrice() + " for order " + order.getTicker());
+                    //logger.info("Matched bid price " + bid.getPrice() + " for order " + order.getTicker());
 
                     if (bid.getQuantity() < order.getQuantity()) {
                         order.setQuantity(order.getQuantity() - bid.getQuantity());

@@ -34,7 +34,7 @@ public class OrderService {
             orderBookRepository.get(order.getTicker()).addOrder(order);
         }
 
-        logger.info("Order Registered: " + order.getTicker());
+        // logger.info("Order Registered: " + order.getTicker());
 
     }
 }
