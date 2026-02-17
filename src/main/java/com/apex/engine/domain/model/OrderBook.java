@@ -1,6 +1,6 @@
-package com.matcha.domain;
+package com.apex.engine.domain.model;
 
-import com.matcha.domain.enums.Side;
+import com.apex.engine.domain.model.enums.Side;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

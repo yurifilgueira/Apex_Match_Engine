@@ -1,10 +1,10 @@
-package com.matcha;
+package com.apex.engine;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MockMatchingEngineApplicationTests {
+class MatchingEngineApplicationTests {
 
     @Test
     void contextLoads() {

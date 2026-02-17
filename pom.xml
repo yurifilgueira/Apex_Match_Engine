@@ -8,7 +8,7 @@
         <version>4.0.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.matcha</groupId>
+    <groupId>com.apex.engine</groupId>
     <artifactId>apex_matching_engine</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>apex</name>
@@ -33,6 +33,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>4.0.0</version>
         </dependency>
 
         <dependency>
