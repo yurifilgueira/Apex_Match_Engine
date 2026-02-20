@@ -3,11 +3,11 @@ package com.apex.engine.application.services;
 import com.apex.engine.domain.model.Order;
 import com.apex.engine.domain.model.OrderBook;
 import com.apex.engine.infrastructure.persistence.OrderBookRepository;
+import com.apex.engine.infrastructure.web.dtos.OrderDTO;
+import com.apex.engine.infrastructure.web.mappers.OrderMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
 
 @Service
 public class OrderService {
@@ -19,20 +19,18 @@ public class OrderService {
         this.orderBookRepository = OrderBookRepository.getInstance();
     }
 
-    public void registerOrder(Order order) {
+    public void registerOrder(OrderDTO dto) {
+        Order order = OrderMapper.toEntity(dto);
 
-        order.setTimestamp(Instant.now());
+        order.setTimestamp(System.currentTimeMillis());
 
-        if (!orderBookRepository.containsKey(order.getTicker())) {
-            OrderBook orderBook = new OrderBook();
-            orderBook.setTicker(order.getTicker());
-            orderBook.addOrder(order);
+        OrderBook orderBook = orderBookRepository.getOrderBooks().computeIfAbsent(order.getTicker(), ticker -> {
+            OrderBook newBook = new OrderBook();
+            newBook.setTicker(ticker);
+            return newBook;
+        });
 
-            orderBookRepository.put(order.getTicker(), orderBook);
-        }
-        else {
-            orderBookRepository.get(order.getTicker()).addOrder(order);
-        }
+        orderBook.addOrder(order);
 
         // logger.info("Order Registered: " + order.getTicker());
 

@@ -6,20 +6,22 @@ import java.time.Instant;
 
 public class Order {
     private String ticker;
-    private Double price;
-    private Instant timestamp;
+    private long price;
+    private long timestamp;
     private Side side;
-    private Integer quantity;
+    private int quantity;
+    private int originalQuantity;
 
     public Order() {
     }
 
-    public Order(String ticker, Double price, Instant timestamp, Side side, Integer quantity) {
+    public Order(String ticker, long price, long timestamp, Side side, int quantity, int originalQuantity) {
         this.ticker = ticker;
         this.price = price;
         this.timestamp = timestamp;
         this.side = side;
         this.quantity = quantity;
+        this.originalQuantity = originalQuantity;
     }
 
     public String getTicker() {
@@ -30,19 +32,19 @@ public class Order {
         this.ticker = ticker;
     }
 
-    public Double getPrice() {
+    public long getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(long price) {
         this.price = price;
     }
 
-    public Instant getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Instant timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -54,11 +56,19 @@ public class Order {
         this.side = side;
     }
 
-    public Integer getQuantity() {
+    public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Integer quantity) {
+    public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public int getOriginalQuantity() {
+        return originalQuantity;
+    }
+
+    public void setOriginalQuantity(int originalQuantity) {
+        this.originalQuantity = originalQuantity;
     }
 }
