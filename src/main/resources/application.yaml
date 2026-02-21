@@ -1,3 +1,17 @@
 spring:
   application:
     name: mock_matching_engine
+#  grpc:
+#    server:
+#      port: 9090
+#      reflection:
+#        enabled: true
+#      health:
+#        enabled: true
+#      shutdown-grace-period: 30s
+#      keep-alive:
+#        max-age: 30m
+#        time: 1m
+#        timeout: 20s
+#        permit-without-calls: true
+#      max-inbound-message-size: 4194304B

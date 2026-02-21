@@ -3,9 +3,10 @@ import { sleep, check } from 'k6';
 
 export const options = {
     stages: [
-        { duration: '30s', target: 100 },
+        { duration: '30s', target: 1 },
         { duration: '2m', target: 500 },
-        { duration: '1m', target: 0 },    ],
+        { duration: '1m', target: 0 },
+    ],
 };
 
 function getRandomPrice(min, max) {

@@ -3,8 +3,9 @@ package com.apex.engine.application.services;
 import com.apex.engine.domain.model.Order;
 import com.apex.engine.domain.model.OrderBook;
 import com.apex.engine.infrastructure.persistence.OrderBookRepository;
-import com.apex.engine.infrastructure.web.dtos.OrderDTO;
+
 import com.apex.engine.infrastructure.web.mappers.OrderMapper;
+import com.apex.engine.v1.grpc.OrderDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
