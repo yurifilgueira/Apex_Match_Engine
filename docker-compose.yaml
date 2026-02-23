@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  apex-engine:
+    build: .
+    container_name: apex-matching-engine
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:8080/orders > /dev/null || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - apex-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  k6:
+    image: grafana/k6:latest
+    container_name: k6-load-tester
+    command:
+      - run
+      - /scripts/first-test.js
+    volumes:
+      - ./src/test/k6-load-tests:/scripts
+    environment:
+      - HTTP_HOST=apex-engine
+    depends_on:
+      apex-engine:
+        condition: service_healthy
+    networks:
+      - apex-network
+
+networks:
+  apex-network:
+    driver: bridge

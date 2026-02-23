@@ -25,4 +25,9 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @GetMapping
+    public ResponseEntity<?> healthCheck() {
+        return ResponseEntity.ok().build();
+    }
+
 }

@@ -22,7 +22,10 @@ function getRandomSide() {
 }
 
 export default function () {
-    const url = "http://localhost:8080/orders";
+    // const url = "http://localhost:8080/orders";
+    
+    const host = __ENV.HTTP_HOST || 'host.docker.internal';
+    const url = `http://${host}:8080/orders`;
 
     const params = {
         headers: {
