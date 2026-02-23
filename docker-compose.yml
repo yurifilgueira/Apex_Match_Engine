@@ -5,36 +5,32 @@ services:
     build: .
     container_name: apex-matching-engine
     ports:
-      - "9090:9090" # Porta gRPC
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - "9090:9090"
     restart: unless-stopped
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    networks:
-      - apex-network
-
-  k6:
-    image: grafana/k6:latest
-    container_name: k6-load-tester
-    volumes:
-      - ./src/test/k6-load-tests:/scripts
-    # Comando para rodar o teste assim que o container subir
-    command: run /scripts/grpc-test.js
-    environment:
-      - K6_OUT=json=/scripts/results.json # Salva os resultados
-    depends_on:
-      - apex-engine
     networks:
       - apex-network
     deploy:
       resources:
         limits:
-          cpus: '1.0' # Deixe CPU sobrando para o Motor
+          memory: 1G
+        reservations:
           memory: 512M
+
+  k6:
+    image: grafana/k6:latest
+    container_name: k6-load-tester
+    command:
+      - run
+      - /scripts/grpc-test.js
+    volumes:
+      - ./src/test/k6-load-tests:/scripts
+      - ./src/main/resources/proto:/proto
+    environment:
+      - GRPC_HOST=apex-engine
+    depends_on:
+      - apex-engine
+    networks:
+      - apex-network
 
 networks:
   apex-network:

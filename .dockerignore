@@ -1,0 +1,12 @@
+target/
+build/
+
+.git
+.gitignore
+
+*.log
+.idea/
+.vscode/
+*.swp
+
+src/test/k6-load-tests/results.json

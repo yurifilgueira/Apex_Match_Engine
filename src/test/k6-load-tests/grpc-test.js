@@ -2,23 +2,13 @@ import grpc from 'k6/net/grpc';
 import { check, sleep } from 'k6';
 
 const client = new grpc.Client();
-
-// Carrega o arquivo .proto
-// Caminho ajustado para funcionar tanto local quanto no Docker (via volume)
-// No Docker, montamos em /main/resources/proto
-// Localmente, está em ../../main/resources/proto
-// Vamos tentar carregar de um caminho que funcione no Docker primeiro
-try {
-    client.load(['/main/resources/proto'], 'order_service.proto');
-} catch (e) {
-    client.load(['../../main/resources/proto'], 'order_service.proto');
-}
+client.load(['/proto'], 'order_service.proto');
 
 export const options = {
     stages: [
-        { duration: '100s', target: 100 },
-        // { duration: '1m', target: 500 },
-        // { duration: '10s', target: 0 },
+        { duration: '30s', target: 100 },
+        { duration: '2m', target: 500 },
+        { duration: '5m', target: 500 },
     ],
 };
 
@@ -36,15 +26,11 @@ function getRandomSide() {
 }
 
 export default function () {
-    // Pega o host da variável de ambiente ou usa host.docker.internal (para Docker)
-    // Se estiver rodando localmente fora do Docker, pode ser necessário definir GRPC_HOST='localhost'
     const host = __ENV.GRPC_HOST || 'host.docker.internal';
     
-    if (client.state !== 'READY') {
-        client.connect(`${host}:9090`, {
-            plaintext: true
-        });
-    }
+    client.connect(`${host}:9090`, {
+        plaintext: true
+    });
 
     const data = {
         ticker: 'PETR4',
@@ -55,9 +41,9 @@ export default function () {
 
     const response = client.invoke('com.apex.engine.v1.OrderServiceGrpc/CreateOrder', data);
 
-    // console.log(response);
-
     check(response, {
         'status is OK': (r) => r && r.status === grpc.StatusOK,
     });
+    
+    client.close();
 }
