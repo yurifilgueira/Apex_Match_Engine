@@ -33,11 +33,11 @@ public class OrderBook {
         this.ticker = ticker;
     }
 
-    public synchronized void addOrder(Order order) {
+    public void addOrder(Order order) {
         tryMatchNewOrder(order);
     }
 
-    private synchronized void tryMatchNewOrder(Order order) {
+    private void tryMatchNewOrder(Order order) {
         var oppositeSide = order.getSide() == Side.ASK ? bidSide : askSide;
 
         Engine.tryMatch(order, oppositeSide);
