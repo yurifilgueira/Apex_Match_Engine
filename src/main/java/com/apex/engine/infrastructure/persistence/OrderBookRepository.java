@@ -1,6 +1,6 @@
 package com.apex.engine.infrastructure.persistence;
 
-import com.apex.engine.domain.model.OrderBook;
+import com.apex.engine.domain.model.entities.OrderBook;
 
 import java.util.concurrent.ConcurrentHashMap;
 

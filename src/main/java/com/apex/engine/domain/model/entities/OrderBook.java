@@ -1,4 +1,4 @@
-package com.apex.engine.domain.model;
+package com.apex.engine.domain.model.entities;
 
 import com.apex.engine.application.matching.Engine;
 import com.apex.engine.domain.model.enums.Side;

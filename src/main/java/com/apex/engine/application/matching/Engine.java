@@ -1,7 +1,7 @@
 package com.apex.engine.application.matching;
 
-import com.apex.engine.domain.model.Order;
-import com.apex.engine.domain.model.PriceLevel;
+import com.apex.engine.domain.model.entities.Order;
+import com.apex.engine.domain.model.entities.PriceLevel;
 import com.apex.engine.domain.model.enums.Side;
 import it.unimi.dsi.fastutil.longs.Long2ObjectRBTreeMap;
 import org.slf4j.Logger;

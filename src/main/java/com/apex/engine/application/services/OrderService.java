@@ -1,7 +1,7 @@
 package com.apex.engine.application.services;
 
-import com.apex.engine.domain.model.Order;
-import com.apex.engine.domain.model.OrderBook;
+import com.apex.engine.domain.model.entities.Order;
+import com.apex.engine.domain.model.entities.OrderBook;
 import com.apex.engine.infrastructure.persistence.OrderBookRepository;
 import com.apex.engine.infrastructure.web.dtos.OrderDTO;
 import com.apex.engine.infrastructure.web.mappers.OrderMapper;

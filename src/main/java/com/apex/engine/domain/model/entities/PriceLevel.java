@@ -1,4 +1,4 @@
-package com.apex.engine.domain.model;
+package com.apex.engine.domain.model.entities;
 
 import java.util.LinkedList;
 

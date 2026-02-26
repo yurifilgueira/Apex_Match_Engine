@@ -1,8 +1,6 @@
-package com.apex.engine.domain.model;
+package com.apex.engine.domain.model.entities;
 
 import com.apex.engine.domain.model.enums.Side;
-
-import java.time.Instant;
 
 public class Order {
     private String ticker;

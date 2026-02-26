@@ -1,9 +1,7 @@
 package com.apex.engine.infrastructure.web.mappers;
 
-import com.apex.engine.domain.model.Order;
+import com.apex.engine.domain.model.entities.Order;
 import com.apex.engine.infrastructure.web.dtos.OrderDTO;
-
-import java.math.BigDecimal;
 
 public class OrderMapper {
 
