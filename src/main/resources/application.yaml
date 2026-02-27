@@ -1,3 +1,3 @@
 spring:
   application:
-    name: mock_matching_engine
+    name: apex_matching_engine
