@@ -29,9 +29,9 @@ public class DisruptorConfig {
 
         Disruptor<OrderEvent> disruptor = new Disruptor<>(
                 OrderEvent.EVENT_FACTORY,
-                16384,
+                4096,
                 threadFactory,
-                ProducerType.SINGLE,
+                ProducerType.MULTI,
                 waitStrategy
         );
 

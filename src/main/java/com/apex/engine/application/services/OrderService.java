@@ -42,6 +42,8 @@ public class OrderService {
 
         ringBuffer.publish(sequenceId);
 
+        // logger.info("Ring Buffer capacity: {}", ringBuffer.remainingCapacity());
+
         // logger.info("Order Registered: " + order.getTicker());
 
     }
