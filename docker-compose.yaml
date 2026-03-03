@@ -6,6 +6,17 @@ services:
     container_name: apex-matching-engine
     ports:
       - "8080:8080"
+      - "127.0.0.1:7012:7012"
+    environment:
+      - JAVA_TOOL_OPTIONS=
+        -Dcom.sun.management.jmxremote=true
+        -Dcom.sun.management.jmxremote.port=7012
+        -Dcom.sun.management.jmxremote.rmi.port=7012
+        -Dcom.sun.management.jmxremote.local.only=false
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false
+        -Djava.rmi.server.hostname=127.0.0.1
+        -Djava.net.preferIPv4Stack=true
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -s http://localhost:8080/orders > /dev/null || exit 1"]
