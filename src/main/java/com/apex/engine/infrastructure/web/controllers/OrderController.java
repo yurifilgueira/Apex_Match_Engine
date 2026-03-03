@@ -19,9 +19,9 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody OrderDTO dto) {
-        orderService.registerOrder(dto);
+    @PostMapping(consumes = "application/octet-stream")
+    public ResponseEntity<?> createOrder(@RequestBody byte[] bytes) {
+        orderService.registerOrder(bytes);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

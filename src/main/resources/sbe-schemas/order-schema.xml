@@ -8,6 +8,13 @@
                    byteOrder="littleEndian">
 
     <types>
+        <composite name="messageHeader" description="Standard SBE message header">
+            <type name="blockLength" primitiveType="uint16"/>
+            <type name="templateId"  primitiveType="uint16"/>
+            <type name="schemaId"    primitiveType="uint16"/>
+            <type name="version"     primitiveType="uint16"/>
+        </composite>
+
         <type name="char8" primitiveType="char" length="8" characterEncoding="US-ASCII"/>
         <type name="PriceType" primitiveType="int64"/>
         <type name="QtyType" primitiveType="int32"/>
@@ -18,10 +25,10 @@
     </types>
 
     <sbe:message name="NewOrder" id="1" description="Order input">
-        <field name="ticker" id="1" type="char8"/>
-        <field name="price" id="2" type="PriceType"/>
+        <field name="ticker"   id="1" type="char8"/>
+        <field name="price"    id="2" type="PriceType"/>
         <field name="quantity" id="3" type="QtyType"/>
-        <field name="side" id="4" type="SideEnum"/>
+        <field name="side"     id="4" type="SideEnum"/>
     </sbe:message>
 
 </sbe:messageSchema>
