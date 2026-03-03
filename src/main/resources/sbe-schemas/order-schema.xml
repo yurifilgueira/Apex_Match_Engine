@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sbe:messageSchema xmlns:sbe="http://fixprotocol.io/2016/sbe"
+                   package="com.apex.engine.sbe"
+                   id="1"
+                   version="1"
+                   semanticVersion="1.0"
+                   description="Schema para o Apex Matching Engine"
+                   byteOrder="littleEndian">
+
+    <types>
+        <type name="char8" primitiveType="char" length="8" characterEncoding="US-ASCII"/>
+        <type name="PriceType" primitiveType="int64"/>
+        <type name="QtyType" primitiveType="int32"/>
+        <enum name="SideEnum" encodingType="uint8">
+            <validValue name="BID">0</validValue>
+            <validValue name="ASK">1</validValue>
+        </enum>
+    </types>
+
+    <sbe:message name="NewOrder" id="1" description="Order input">
+        <field name="ticker" id="1" type="char8"/>
+        <field name="price" id="2" type="PriceType"/>
+        <field name="quantity" id="3" type="QtyType"/>
+        <field name="side" id="4" type="SideEnum"/>
+    </sbe:message>
+
+</sbe:messageSchema>

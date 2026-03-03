@@ -6,7 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>4.0.2</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
     <groupId>com.apex.engine</groupId>
     <artifactId>apex_matching_engine</artifactId>
@@ -42,6 +42,12 @@
         </dependency>
 
         <dependency>
+            <groupId>uk.co.real-logic</groupId>
+            <artifactId>sbe-all</artifactId>
+            <version>1.37.1</version>
+        </dependency>
+
+        <dependency>
             <groupId>it.unimi.dsi</groupId>
             <artifactId>fastutil</artifactId>
             <version>8.5.18</version>
@@ -60,6 +66,63 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <includeProjectDependencies>false</includeProjectDependencies>
+                            <includePluginDependencies>true</includePluginDependencies>
+                            <mainClass>uk.co.real_logic.sbe.SbeTool</mainClass>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>sbe.output.dir</key>
+                                    <value>${project.build.directory}/generated-sources/java</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <key>sbe.target.language</key>
+                                    <value>Java</value>
+                                </systemProperty>
+                            </systemProperties>
+                            <arguments>
+                                <argument>${project.basedir}/src/main/resources/sbe-schemas/order-schema.xml</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>uk.co.real-logic</groupId>
+                        <artifactId>sbe-all</artifactId>
+                        <version>1.37.1</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

@@ -7,13 +7,12 @@ import com.lmax.disruptor.EventFactory;
 
 public class OrderEvent extends Event {
 
-    private Order maker;
+    private final Order maker;
     private OrderBook orderBook;
     public final static EventFactory<OrderEvent> EVENT_FACTORY = OrderEvent::new;
 
     public OrderEvent() {
         this.maker = new Order();
-        this.orderBook = new OrderBook();
     }
 
     public Order getMaker() {
