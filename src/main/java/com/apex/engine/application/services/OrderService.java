@@ -24,13 +24,12 @@ public class OrderService {
     }
 
     public void registerOrder(OrderDTO dto) {
-        Order order = OrderMapper.toEntity(dto);
-
-        order.setTimestamp(System.currentTimeMillis());
 
         long sequenceId = ringBuffer.next();
         OrderEvent orderEvent = ringBuffer.get(sequenceId);
-        orderEvent.setMaker(order);
+
+        Order order = orderEvent.getMaker();
+        OrderMapper.toEntity(dto, order);
 
         OrderBook orderBook = orderBookRepository.getOrderBooks().computeIfAbsent(order.getTicker(), ticker -> {
             OrderBook newBook = new OrderBook();

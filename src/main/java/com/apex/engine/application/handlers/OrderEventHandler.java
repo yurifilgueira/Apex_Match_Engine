@@ -21,9 +21,6 @@ public class OrderEventHandler implements EventHandler<OrderEvent> {
             }
         } catch (Exception e) {
             logger.error("Error adding order to order book", e);
-        } finally {
-            orderEvent.setOrderBook(null);
-            orderEvent.setMaker(null);
         }
     }
 }

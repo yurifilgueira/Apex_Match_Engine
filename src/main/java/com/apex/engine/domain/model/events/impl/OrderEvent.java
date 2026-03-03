@@ -12,6 +12,8 @@ public class OrderEvent extends Event {
     public final static EventFactory<OrderEvent> EVENT_FACTORY = OrderEvent::new;
 
     public OrderEvent() {
+        this.maker = new Order();
+        this.orderBook = new OrderBook();
     }
 
     public Order getMaker() {
