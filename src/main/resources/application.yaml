@@ -1,3 +1,7 @@
 spring:
   application:
     name: apex_matching_engine
+
+apex-engine:
+  disruptor:
+    ring-buffer-size: 4096

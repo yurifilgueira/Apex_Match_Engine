@@ -8,6 +8,9 @@ import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,6 +20,9 @@ import java.util.concurrent.ThreadFactory;
 public class DisruptorConfig {
 
     private final OrderEventHandler orderEventHandler;
+    @Value( "${apex-engine.disruptor.ring-buffer-size:4096}")
+    private int ringBufferSize;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public DisruptorConfig(OrderEventHandler orderEventHandler) {
         this.orderEventHandler = orderEventHandler;
@@ -27,9 +33,11 @@ public class DisruptorConfig {
         ThreadFactory threadFactory = DaemonThreadFactory.INSTANCE;
         WaitStrategy waitStrategy = new BusySpinWaitStrategy();
 
+        logger.info("Creating Ring Buffer with size: {}...", ringBufferSize);
+
         Disruptor<OrderEvent> disruptor = new Disruptor<>(
                 OrderEvent.EVENT_FACTORY,
-                4096,
+                ringBufferSize,
                 threadFactory,
                 ProducerType.MULTI,
                 waitStrategy

@@ -20,10 +20,6 @@ public class OrderEvent extends Event {
         return maker;
     }
 
-    public void setMaker(Order maker) {
-        this.maker = maker;
-    }
-
     public OrderBook getOrderBook() {
         return orderBook;
     }
