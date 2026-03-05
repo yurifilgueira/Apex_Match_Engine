@@ -12,4 +12,13 @@ LABEL authors="yuris"
 WORKDIR /app
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /app/target/*.jar app.jar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", \
+    "--add-opens", "java.base/jdk.internal.misc=ALL-UNNAMED", \
+    "--add-opens", "java.base/java.util.zip=ALL-UNNAMED", \
+    "--add-opens", "java.base/java.nio=ALL-UNNAMED", \
+    "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED", \
+    "--add-opens", "java.base/java.lang=ALL-UNNAMED", \
+    "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED", \
+    "--add-opens", "java.base/java.util=ALL-UNNAMED", \
+    "--add-opens", "java.base/java.util.concurrent.atomic=ALL-UNNAMED", \
+    "-jar", "app.jar"]

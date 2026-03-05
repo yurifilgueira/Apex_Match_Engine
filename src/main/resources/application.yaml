@@ -5,3 +5,5 @@ spring:
 apex-engine:
   disruptor:
     ring-buffer-size: 4096
+  aeron:
+    directory-name: /dev/shm/aeron
