@@ -6,51 +6,36 @@ services:
     container_name: apex-matching-engine
     ports:
       - "8080:8080"
-      - "127.0.0.1:7012:7012"
     environment:
-      - JDK_JAVA_OPTIONS=
-        --add-opens java.base/jdk.internal.misc=ALL-UNNAMED
-        --add-opens java.base/java.util.zip=ALL-UNNAMED
-        --add-opens java.base/java.nio=ALL-UNNAMED
-        --add-opens java.base/sun.nio.ch=ALL-UNNAMED
-        --add-opens java.base/java.lang=ALL-UNNAMED
-        --add-opens java.base/java.lang.reflect=ALL-UNNAMED
-        --add-opens java.base/java.util=ALL-UNNAMED
-        --add-opens java.base/java.util.concurrent.atomic=ALL-UNNAMED
-        -Dcom.sun.management.jmxremote=true
-        -Dcom.sun.management.jmxremote.port=7012
-        -Dcom.sun.management.jmxremote.rmi.port=7012
-        -Dcom.sun.management.jmxremote.local.only=false
-        -Dcom.sun.management.jmxremote.authenticate=false
-        -Dcom.sun.management.jmxremote.ssl=false
-        -Djava.rmi.server.hostname=127.0.0.1
-        -Djava.net.preferIPv4Stack=true
+      - JDK_JAVA_OPTIONS=--add-opens java.base/jdk.internal.misc=ALL-UNNAMED
+    volumes:
+      - /dev/shm:/dev/shm
+    shm_size: '512mb'
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -s http://localhost:8080/orders > /dev/null || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 10s
     networks:
       - apex-network
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-        reservations:
-          memory: 512M
 
-  k6:
-    image: grafana/k6:latest
-    container_name: k6-load-tester
-    command:
-      - run
-      - /scripts/first-test.js
-    volumes:
-      - ./src/test/k6-load-tests:/scripts
+  aeron-simulator:
+    build: .
+    container_name: aeron-load-simulator
+    entrypoint: [
+      "java",
+      "-cp", "app.jar",
+      "-Dloader.path=tests.jar",
+      "-Dloader.main=com.apex.engine.simulator.AeronOrderPublisherSimulator",
+      "org.springframework.boot.loader.launch.PropertiesLauncher"
+    ]
     environment:
-      - HTTP_HOST=apex-engine
+      - JDK_JAVA_OPTIONS=--add-opens java.base/jdk.internal.misc=ALL-UNNAMED
+      - AERON_CHANNEL=aeron:udp?endpoint=apex-engine:40456
+      - AERON_DIR=/dev/shm/aeron
+    volumes:
+      - /dev/shm:/dev/shm
     depends_on:
       apex-engine:
         condition: service_healthy
