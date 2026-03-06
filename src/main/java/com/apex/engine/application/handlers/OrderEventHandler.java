@@ -10,12 +10,17 @@ import org.springframework.stereotype.Component;
 public class OrderEventHandler implements EventHandler<OrderEvent> {
 
     private final Logger logger = LoggerFactory.getLogger(OrderEventHandler.class);
+    private long count = 0;
 
     @Override
     public void onEvent(OrderEvent orderEvent, long sequence, boolean endOfBatch) {
         try {
             if (orderEvent.getOrderBook() != null && orderEvent.getMaker() != null) {
                 orderEvent.getOrderBook().addOrder(orderEvent.getMaker());
+
+                if (++count % 10000 == 0) {
+                    logger.info("Processed {} orders until now...", count);
+                }
             } else {
                 logger.error("Invalid event at sequence {}: OrderBook or Maker is null", sequence);
             }

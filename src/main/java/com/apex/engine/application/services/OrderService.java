@@ -8,7 +8,7 @@ import com.apex.engine.infrastructure.web.mappers.OrderMapper;
 import com.apex.engine.sbe.MessageHeaderDecoder;
 import com.apex.engine.sbe.NewOrderDecoder;
 import com.lmax.disruptor.RingBuffer;
-import org.agrona.concurrent.UnsafeBuffer;
+import org.agrona.DirectBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class OrderService {
     private final OrderBookRepository orderBookRepository;
     private final RingBuffer<OrderEvent> ringBuffer;
     private final Logger logger = LoggerFactory.getLogger(OrderService.class);
-    private static final ThreadLocal<UnsafeBuffer> bufferTl = ThreadLocal.withInitial(() -> new UnsafeBuffer(new byte[0]));
+
     private static final ThreadLocal<MessageHeaderDecoder> headerDecoderTl = ThreadLocal.withInitial(MessageHeaderDecoder::new);
     private static final ThreadLocal<NewOrderDecoder> dataDecoderTl = ThreadLocal.withInitial(NewOrderDecoder::new);
 
@@ -28,14 +28,11 @@ public class OrderService {
         this.ringBuffer = ringBuffer;
     }
 
-    public void registerOrder(byte[] payload) {
-
-        UnsafeBuffer buffer = bufferTl.get();
+    public void registerOrder(DirectBuffer buffer, int offset, int length) {
         MessageHeaderDecoder headerDecoder = headerDecoderTl.get();
         NewOrderDecoder dataDecoder = dataDecoderTl.get();
 
-        buffer.wrap(payload);
-        dataDecoder.wrapAndApplyHeader(buffer, 0, headerDecoder);
+        dataDecoder.wrapAndApplyHeader(buffer, offset, headerDecoder);
 
         long sequenceId = ringBuffer.next();
         OrderEvent orderEvent = ringBuffer.get(sequenceId);

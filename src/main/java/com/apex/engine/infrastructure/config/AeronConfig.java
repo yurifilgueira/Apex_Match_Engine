@@ -1,5 +1,6 @@
 package com.apex.engine.infrastructure.config;
 
+import io.aeron.Aeron;
 import io.aeron.driver.MediaDriver;
 import io.aeron.driver.ThreadingMode;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,15 @@ public class AeronConfig {
                 .aeronDirectoryName(aeronDirectoryName);
 
         return MediaDriver.launchEmbedded(ctx);
+    }
+
+    @Bean(destroyMethod = "close")
+    public Aeron aeron(MediaDriver mediaDriver) {
+        Aeron.Context ctx = new Aeron.Context()
+                .aeronDirectoryName(mediaDriver.aeronDirectoryName())
+                .errorHandler(Throwable::printStackTrace);
+
+        return Aeron.connect(ctx);
     }
 
 }
