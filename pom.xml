@@ -9,168 +9,75 @@
         <relativePath/>
     </parent>
     <groupId>com.apex.engine</groupId>
-    <artifactId>apex_matching_engine</artifactId>
+    <artifactId>apex-matching-engine-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>apex</name>
-    <description>apex_matching_engine</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
+    <packaging>pom</packaging>
+    <name>apex-matching-engine-parent</name>
+
+    <modules>
+        <module>apex-common</module>
+        <module>apex-engine</module>
+        <module>apex-gateway</module>
+    </modules>
+
     <properties>
         <java.version>25</java.version>
+        <sbe.version>1.37.1</sbe.version>
+        <aeron.version>1.50.2</aeron.version>
+        <disruptor.version>4.0.0</disruptor.version>
+        <fastutil.version>8.5.18</fastutil.version>
+        <hdrhistogram.version>2.2.2</hdrhistogram.version>
     </properties>
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc</artifactId>
-        </dependency>
 
-        <dependency>
-            <groupId>com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>uk.co.real-logic</groupId>
-            <artifactId>sbe-all</artifactId>
-            <version>1.37.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.aeron</groupId>
-            <artifactId>aeron-all</artifactId>
-            <version>1.50.2</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hdrhistogram</groupId>
-            <artifactId>HdrHistogram</artifactId>
-            <version>2.2.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>it.unimi.dsi</groupId>
-            <artifactId>fastutil</artifactId>
-            <version>8.5.18</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.apex.engine</groupId>
+                <artifactId>apex-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>uk.co.real-logic</groupId>
+                <artifactId>sbe-all</artifactId>
+                <version>${sbe.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.aeron</groupId>
+                <artifactId>aeron-all</artifactId>
+                <version>${aeron.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.lmax</groupId>
+                <artifactId>disruptor</artifactId>
+                <version>${disruptor.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>it.unimi.dsi</groupId>
+                <artifactId>fastutil</artifactId>
+                <version>${fastutil.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hdrhistogram</groupId>
+                <artifactId>HdrHistogram</artifactId>
+                <version>${hdrhistogram.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <jvmArguments>
-                        --add-opens java.base/jdk.internal.misc=ALL-UNNAMED
-                        --add-opens java.base/java.util.zip=ALL-UNNAMED
-                        --add-opens java.base/java.nio=ALL-UNNAMED
-                        --add-opens java.base/sun.nio.ch=ALL-UNNAMED
-                        --add-opens java.base/java.lang=ALL-UNNAMED
-                        --add-opens java.base/java.lang.reflect=ALL-UNNAMED
-                        --add-opens java.base/java.util=ALL-UNNAMED
-                        --add-opens java.base/java.util.concurrent.atomic=ALL-UNNAMED
-                        --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
-                        --add-exports java.base/sun.nio.ch=ALL-UNNAMED
-                    </jvmArguments>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <includeProjectDependencies>false</includeProjectDependencies>
-                            <includePluginDependencies>true</includePluginDependencies>
-                            <mainClass>uk.co.real_logic.sbe.SbeTool</mainClass>
-                            <systemProperties>
-                                <systemProperty>
-                                    <key>sbe.output.dir</key>
-                                    <value>${project.build.directory}/generated-sources/java</value>
-                                </systemProperty>
-                                <systemProperty>
-                                    <key>sbe.target.language</key>
-                                    <value>Java</value>
-                                </systemProperty>
-                            </systemProperties>
-                            <arguments>
-                                <argument>${project.basedir}/src/main/resources/sbe-schemas/order-schema.xml</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>uk.co.real-logic</groupId>
-                        <artifactId>sbe-all</artifactId>
-                        <version>1.37.1</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.3.0</version>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${project.build.directory}/generated-sources/java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.2</version>
-                <configuration>
-                    <argLine>
-                        --add-opens java.base/jdk.internal.misc=ALL-UNNAMED
-                        --add-opens java.base/java.util.zip=ALL-UNNAMED
-                        --add-opens java.base/java.nio=ALL-UNNAMED
-                        --add-opens java.base/sun.nio.ch=ALL-UNNAMED
-                        --add-opens java.base/java.lang=ALL-UNNAMED
-                        --add-opens java.base/java.lang.reflect=ALL-UNNAMED
-                        --add-opens java.base/java.util=ALL-UNNAMED
-                        --add-opens java.base/java.util.concurrent.atomic=ALL-UNNAMED
-                        --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
-                        --add-exports java.base/sun.nio.ch=ALL-UNNAMED
-                    </argLine>
-                </configuration>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>3.3.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
-
 </project>

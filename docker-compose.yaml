@@ -4,8 +4,6 @@ services:
   apex-engine:
     build: .
     container_name: apex-matching-engine
-    ports:
-      - "8080:8080"
     environment:
       - JDK_JAVA_OPTIONS=--add-opens java.base/jdk.internal.misc=ALL-UNNAMED
     volumes:
@@ -13,10 +11,23 @@ services:
     shm_size: '512mb'
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:8080/orders > /dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -s http://localhost:8080/health > /dev/null || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - apex-network
+
+  apex-gateway:
+    build: .
+    container_name: apex-order-gateway
+    entrypoint: ["java", "-jar", "gateway.jar"]
+    ports:
+      - "8081:8080"
+    environment:
+      - JDK_JAVA_OPTIONS=--add-opens java.base/jdk.internal.misc=ALL-UNNAMED
+    depends_on:
+      - apex-engine
     networks:
       - apex-network
 
@@ -25,13 +36,13 @@ services:
     container_name: aeron-load-simulator
     entrypoint: [
       "java",
-      "-cp", "app.jar",
-      "-Dloader.path=tests.jar",
+      "-cp", "engine.jar",
+      "-Dloader.path=engine-tests.jar",
       "-Dloader.main=com.apex.engine.simulator.AeronOrderPublisherSimulator",
       "org.springframework.boot.loader.launch.PropertiesLauncher"
     ]
     environment:
-      - JDK_JAVA_OPTIONS=--add-opens java.base/jdk.internal.misc=ALL-UNNAMED
+      - JDK_JAVA_OPTIONS=--add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Dtest.orders=5000000
       - AERON_CHANNEL=aeron:udp?endpoint=apex-engine:40456
       - AERON_DIR=/dev/shm/aeron
     volumes:
@@ -49,7 +60,7 @@ services:
       - run
       - /scripts/first-test.js
     volumes:
-      - ./src/test/k6-load-tests:/scripts
+      - ./apex-engine/src/test/k6-load-tests:/scripts
     environment:
       - HTTP_HOST=apex-engine
     depends_on:

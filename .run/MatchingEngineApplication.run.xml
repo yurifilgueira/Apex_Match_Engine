@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="MatchingEngineApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-    <module name="apex_matching_engine" />
+    <module name="apex_matching_engine (1)" />
     <selectedOptions>
       <option name="environmentVariables" />
     </selectedOptions>
