@@ -42,6 +42,22 @@ services:
     networks:
       - apex-network
 
+  k6:
+    image: grafana/k6:latest
+    container_name: k6-load-tester
+    command:
+      - run
+      - /scripts/first-test.js
+    volumes:
+      - ./src/test/k6-load-tests:/scripts
+    environment:
+      - HTTP_HOST=apex-engine
+    depends_on:
+      apex-engine:
+        condition: service_healthy
+    networks:
+      - apex-network
+
 networks:
   apex-network:
     driver: bridge

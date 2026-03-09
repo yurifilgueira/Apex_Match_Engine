@@ -86,7 +86,7 @@ public class AeronOrderPublisherSimulator {
             }
 
             running.set(false);
-            Thread.sleep(1000); // Aguarda encerramento das threads
+            Thread.sleep(1000);
             printFinalReport(totalOrdersAccumulated.sum(), (System.currentTimeMillis() - startTimeMillis) / 1000.0);
 
         } catch (Exception e) {
