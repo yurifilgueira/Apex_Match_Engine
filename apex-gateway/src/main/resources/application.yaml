@@ -8,5 +8,5 @@ spring:
 apex-engine:
   aeron:
     directory-name: /dev/shm/aeron
-    channel: aeron:udp?endpoint=apex-engine:40456
+    channel: aeron:ipc
     stream-id: 10

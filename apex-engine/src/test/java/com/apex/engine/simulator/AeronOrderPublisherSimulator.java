@@ -40,11 +40,23 @@ public class AeronOrderPublisherSimulator {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        String channel = getParam("aeron.channel", "aeron:udp?endpoint=apex-engine:40456");
+        String channel = getParam("aeron.channel", "aeron:ipc");
         int streamId = Integer.parseInt(getParam("aeron.streamId", "10"));
         String aeronDir = getParam("aeron.dir", "/dev/shm/aeron");
 
-        try (Aeron aeron = Aeron.connect(new Aeron.Context().aeronDirectoryName(aeronDir));
+        Aeron connectedAeron = null;
+        while (running.get()) {
+            try {
+                connectedAeron = Aeron.connect(new Aeron.Context().aeronDirectoryName(aeronDir));
+                break;
+            } catch (Exception e) {
+                System.out.println("Waiting for Aeron MediaDriver at " + aeronDir + "...");
+                Thread.sleep(1000);
+            }
+        }
+
+        final Aeron aeron = connectedAeron;
+        try (aeron;
              Publication publication = aeron.addPublication(channel, streamId);
              var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 

@@ -10,5 +10,5 @@ apex-engine:
     ring-buffer-size: 4096
   aeron:
     directory-name: /dev/shm/aeron
-    channel: aeron:udp?endpoint=0.0.0.0:40456
+    channel: aeron:ipc
     stream-id: 10

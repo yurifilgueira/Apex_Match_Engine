@@ -48,13 +48,10 @@ services:
     ]
     environment:
       - JDK_JAVA_OPTIONS=--add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Dtest.orders=5000000
-      - AERON_CHANNEL=aeron:udp?endpoint=apex-engine:40456
+      - AERON_CHANNEL=aeron:ipc
       - AERON_DIR=/dev/shm/aeron
     volumes:
       - /dev/shm:/dev/shm
-    depends_on:
-      apex-engine:
-        condition: service_healthy
     networks:
       - apex-network
 
