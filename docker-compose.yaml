@@ -28,6 +28,9 @@ services:
       - "8080:8080"
     environment:
       - JDK_JAVA_OPTIONS=--add-opens java.base/jdk.internal.misc=ALL-UNNAMED
+    volumes:
+      - /dev/shm:/dev/shm
+    shm_size: '512mb'
     depends_on:
       - apex-engine
     networks:
@@ -64,10 +67,10 @@ services:
     volumes:
       - ./apex-engine/src/test/k6-load-tests:/scripts
     environment:
-      - HTTP_HOST=apex-engine
+      - HTTP_HOST=apex-gateway
+      - HTTP_PORT=8080
     depends_on:
-      apex-engine:
-        condition: service_healthy
+      - apex-gateway
     networks:
       - apex-network
 

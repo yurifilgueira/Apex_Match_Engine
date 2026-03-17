@@ -9,7 +9,7 @@ export const options = {
 };
 
 function getRandomPrice(min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
+    return (Math.random() * (max - min) + min).toFixed(2);
 }
 
 function getRandomQuantity(min, max) {
@@ -18,36 +18,21 @@ function getRandomQuantity(min, max) {
 
 export default function () {
     const host = __ENV.HTTP_HOST || 'localhost';
-    const url = `http://${host}:8080/orders`;
+    const port = __ENV.HTTP_PORT || '8080';
+    const url = `http://${host}:${port}/orders`;
+
+    const payload = JSON.stringify({
+        ticker: 'PETR4',
+        price: parseFloat(getRandomPrice(35.00, 55.00)),
+        quantity: getRandomQuantity(10, 500),
+        side: Math.random() < 0.5 ? 'BID' : 'ASK'
+    });
 
     const params = {
         headers: {
-            'Content-Type': 'application/octet-stream',
+            'Content-Type': 'application/json',
         },
     };
 
-    const buffer = new ArrayBuffer(29);
-    const view = new DataView(buffer);
-
-    view.setUint16(0, 21, true);
-    view.setUint16(2, 1, true);
-    view.setUint16(4, 1, true);
-    view.setUint16(6, 1, true);
-
-    const ticker = 'PETR4   ';
-    for (let i = 0; i < 8; i++) {
-        view.setUint8(8 + i, ticker.charCodeAt(i));
-    }
-
-    const price = getRandomPrice(3500, 5500);
-    view.setUint32(16, price, true);
-    view.setUint32(20, 0, true);
-
-    const quantity = getRandomQuantity(10, 500);
-    view.setUint32(24, quantity, true);
-
-    const side = Math.random() < 0.5 ? 0 : 1;
-    view.setUint8(28, side);
-
-    http.post(url, buffer, params);
+    http.post(url, payload, params);
 }

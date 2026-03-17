@@ -33,7 +33,7 @@ public class OrderPublisher {
     private final UnsafeBuffer buffer = new UnsafeBuffer(new byte[1024]);
     private final NewOrderEncoder encoder = new NewOrderEncoder();
     private final MessageHeaderEncoder headerEncoder = new MessageHeaderEncoder();
-    private IdleStrategy idleStrategy = new BusySpinIdleStrategy();
+    private final IdleStrategy idleStrategy = new BusySpinIdleStrategy();
 
     @PostConstruct
     public void init() {
