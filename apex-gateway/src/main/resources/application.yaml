@@ -1,13 +1,11 @@
 server:
-  port: 9090
+  port: 8080
 
 spring:
   application:
-    name: apex_matching_engine
+    name: apex-gateway
 
 apex-engine:
-  disruptor:
-    ring-buffer-size: 4096
   aeron:
     directory-name: /dev/shm/aeron
     channel: aeron:udp?endpoint=0.0.0.0:40456

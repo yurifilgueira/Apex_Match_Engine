@@ -4,6 +4,8 @@ services:
   apex-engine:
     build: .
     container_name: apex-matching-engine
+    ports:
+      - 9090:8080
     environment:
       - JDK_JAVA_OPTIONS=--add-opens java.base/jdk.internal.misc=ALL-UNNAMED
     volumes:
@@ -23,7 +25,7 @@ services:
     container_name: apex-order-gateway
     entrypoint: ["java", "-jar", "gateway.jar"]
     ports:
-      - "8081:8080"
+      - "8080:8080"
     environment:
       - JDK_JAVA_OPTIONS=--add-opens java.base/jdk.internal.misc=ALL-UNNAMED
     depends_on:
