@@ -6,6 +6,10 @@ spring:
     name: apex-gateway
 
 apex-engine:
+  server:
+    netty:
+      entrypoint:
+        port: 8081
   aeron:
     directory-name: /dev/shm/aeron
     channel: aeron:ipc
