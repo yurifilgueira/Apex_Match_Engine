@@ -37,6 +37,7 @@ public class NettyEntryPointServer {
                             public void initChannel(SocketChannel ch) {
                                 ch.pipeline().addLast(new B3EntryPointDecoder());
                                 ch.pipeline().addLast(new SimpleLoggerHandler());
+                                ch.pipeline().addLast(new B3SessionHandler());
                             }
                         });
 
