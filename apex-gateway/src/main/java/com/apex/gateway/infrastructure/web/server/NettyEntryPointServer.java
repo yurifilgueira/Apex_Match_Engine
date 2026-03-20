@@ -2,10 +2,9 @@ package com.apex.gateway.infrastructure.web.server;
 
 import com.apex.gateway.infrastructure.web.server.decode.B3EntryPointDecoder;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class NettyEntryPointServer {
 
-    @Value("${apex-engine.server.netty.entrypoint.port}")
+    @Value("${apex-engine.server.netty.entrypoint.port:7890}")
     private int port;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -37,6 +36,7 @@ public class NettyEntryPointServer {
                             @Override
                             public void initChannel(SocketChannel ch) {
                                 ch.pipeline().addLast(new B3EntryPointDecoder());
+                                ch.pipeline().addLast(new SimpleLoggerHandler());
                             }
                         });
 
@@ -51,6 +51,25 @@ public class NettyEntryPointServer {
                 workerGroup.shutdownGracefully();
             }
         }, "Netty-Server-Thread").start();
+    }
+
+    private class SimpleLoggerHandler extends ChannelInboundHandlerAdapter {
+        @Override
+        public void channelRead(ChannelHandlerContext ctx, Object msg) {
+            ByteBuf buf = (ByteBuf) msg;
+            try {
+                logger.info("TCP frame caught with size: {} bytes", buf.readableBytes());
+                logger.info("Content Hex: {}", ByteBufUtil.hexDump(buf));
+            } finally {
+                buf.release();
+            }
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+            logger.error("Error connecting to TCP: ", cause);
+            ctx.close();
+        }
     }
 
 }
