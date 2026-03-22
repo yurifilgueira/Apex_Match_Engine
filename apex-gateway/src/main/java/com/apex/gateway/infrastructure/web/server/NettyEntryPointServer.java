@@ -58,17 +58,14 @@ public class NettyEntryPointServer {
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) {
             ByteBuf buf = (ByteBuf) msg;
-            try {
-                logger.info("TCP frame caught with size: {} bytes", buf.readableBytes());
-                logger.info("Content Hex: {}", ByteBufUtil.hexDump(buf));
-            } finally {
-                buf.release();
-            }
+            logger.info("TCP frame caught size: {} bytes | Hex: {}",
+                    buf.readableBytes(), ByteBufUtil.hexDump(buf));
+            ctx.fireChannelRead(msg);
         }
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-            logger.error("Error connecting to TCP: ", cause);
+            logger.error("Netty Exception: ", cause);
             ctx.close();
         }
     }

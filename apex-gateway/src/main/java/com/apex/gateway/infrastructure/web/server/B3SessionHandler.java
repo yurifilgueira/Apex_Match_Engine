@@ -1,9 +1,6 @@
 package com.apex.gateway.infrastructure.web.server;
 
-import com.apex.engine.sbe.EstablishDecoder;
-import com.apex.engine.sbe.MessageHeaderDecoder;
-import com.apex.engine.sbe.NegotiateDecoder;
-import com.apex.engine.sbe.NewOrderDecoder;
+import com.apex.engine.sbe.*;
 import com.apex.gateway.infrastructure.web.server.enums.SessionState;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -24,7 +21,14 @@ public class B3SessionHandler extends ChannelInboundHandlerAdapter {
     private final NewOrderDecoder newOrderDecoder = new NewOrderDecoder();
 
     private final UnsafeBuffer agronaBuffer = new UnsafeBuffer(ByteBuffer.allocate(0));
-    private final SessionState state = SessionState.WAITING_NEGOTIATE;
+
+    private SessionState state = SessionState.WAITING_NEGOTIATE;
+
+    private final MessageHeaderEncoder headerEncoder = new MessageHeaderEncoder();
+    private final NegotiateResponseEncoder negotiateResponseEncoder = new NegotiateResponseEncoder();
+    private final EstablishAckEncoder establishAckEncoder = new EstablishAckEncoder();
+
+    private final UnsafeBuffer writeBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(128));
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
@@ -68,11 +72,67 @@ public class B3SessionHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void handleNegotiate(ChannelHandlerContext ctx, int payloadOffset) {
-        //TODO
+        negotiateDecoder.wrap(agronaBuffer, payloadOffset, headerDecoder.blockLength(), headerDecoder.version());
+        long sessionId = negotiateDecoder.sessionId();
+
+        int sbeLength = encodeNegotiateResponse(sessionId);
+        sendSofhFrame(ctx, sbeLength);
+
+        this.state = SessionState.WAITING_ESTABLISH;
     }
 
     private void handleEstablish(ChannelHandlerContext ctx, int payloadOffset) {
-        //TODO
+        establishDecoder.wrap(agronaBuffer, payloadOffset, headerDecoder.blockLength(), headerDecoder.version());
+        long sessionId = establishDecoder.sessionId();
+
+        logger.info("Establish received! Session ID: {}", sessionId);
+
+        int sbeLength = encodeEstablishAck(sessionId);
+
+        this.state = SessionState.ESTABLISHED;
+
+        logger.info("Sending establish ack...");
     }
 
+    private int encodeNegotiateResponse(long sessionId) {
+        headerEncoder.wrap(agronaBuffer, 0)
+                .blockLength(negotiateResponseEncoder.sbeBlockLength())
+                .templateId(negotiateResponseEncoder.sbeTemplateId())
+                .schemaId(negotiateResponseEncoder.sbeSchemaId())
+                .version(negotiateResponseEncoder.sbeSchemaVersion());
+
+        negotiateResponseEncoder.wrap(agronaBuffer, headerEncoder.encodedLength())
+                .sessionId(sessionId)
+                .negotiationStatus(NegotiationStatus.ACCEPTED);
+
+        return headerEncoder.encodedLength() + negotiateResponseEncoder.encodedLength();
+    }
+
+    private int encodeEstablishAck(long sessionId) {
+        headerEncoder.wrap(writeBuffer, 0)
+                .blockLength(establishAckEncoder.sbeBlockLength())
+                .templateId(establishAckEncoder.sbeTemplateId())
+                .schemaId(establishAckEncoder.sbeSchemaId())
+                .version(establishAckEncoder.sbeSchemaVersion());
+
+        establishAckEncoder.wrap(writeBuffer, headerEncoder.encodedLength())
+                .sessionId(sessionId)
+                .nextSeqNo(1);
+
+        return headerEncoder.encodedLength() + establishAckEncoder.encodedLength();
+    }
+
+    private void sendSofhFrame(ChannelHandlerContext ctx, int sbeLength) {
+        int totalLength = 4 + sbeLength;
+        ByteBuf nettyWriteBuffer = ctx.alloc().buffer(totalLength);
+
+        nettyWriteBuffer.writeShortLE(totalLength);
+        nettyWriteBuffer.writeShortLE(0xEB50);
+
+        ByteBuffer nioBuffer = writeBuffer.byteBuffer();
+        nioBuffer.limit(sbeLength);
+        nettyWriteBuffer.writeBytes(nioBuffer);
+
+        ctx.writeAndFlush(nettyWriteBuffer);
+    }
 }
