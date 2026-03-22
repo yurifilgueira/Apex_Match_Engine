@@ -1,6 +1,9 @@
 package com.apex.gateway.infrastructure.web.server;
 
 import com.apex.engine.sbe.*;
+import com.apex.gateway.application.ingress.OrderPublisher;
+import com.apex.gateway.infrastructure.web.dto.OrderDTO;
+import com.apex.gateway.infrastructure.web.dto.enums.Side;
 import com.apex.gateway.infrastructure.web.server.enums.SessionState;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -9,6 +12,7 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 
 public class B3SessionHandler extends ChannelInboundHandlerAdapter {
@@ -29,6 +33,8 @@ public class B3SessionHandler extends ChannelInboundHandlerAdapter {
     private final EstablishAckEncoder establishAckEncoder = new EstablishAckEncoder();
 
     private final UnsafeBuffer writeBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(128));
+
+    private final OrderPublisher orderPublisher = new OrderPublisher();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
@@ -55,7 +61,7 @@ public class B3SessionHandler extends ChannelInboundHandlerAdapter {
                 case 2:
                     handleNegotiate(ctx, payloadOffset);
                     break;
-                case 3:
+                case 4:
                     handleEstablish(ctx, payloadOffset);
                 default:
                     logger.error("Invalid message type: {}", templateId);
@@ -68,7 +74,22 @@ public class B3SessionHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void handlerOrder(ChannelHandlerContext ctx, int payloadOffset) {
-        //TODO
+        newOrderDecoder.wrap(agronaBuffer, payloadOffset, headerDecoder.blockLength(), headerDecoder.version());
+
+        logger.info("Order received! Ticker: {}, Price: {}, Quantity: {}", newOrderDecoder.ticker(), newOrderDecoder.price(), newOrderDecoder.quantity());
+
+        Side orderSide = newOrderDecoder.side() == SideEnum.BID ? Side.BID : Side.ASK;
+        OrderDTO dto = new OrderDTO(
+                newOrderDecoder.ticker().trim(),
+                BigDecimal.valueOf(newOrderDecoder.price()),
+                orderSide,
+                newOrderDecoder.quantity()
+        );
+
+        orderPublisher.publish(dto);
+
+        logger.info("A new order has been published!");
+
     }
 
     private void handleNegotiate(ChannelHandlerContext ctx, int payloadOffset) {
@@ -88,6 +109,7 @@ public class B3SessionHandler extends ChannelInboundHandlerAdapter {
         logger.info("Establish received! Session ID: {}", sessionId);
 
         int sbeLength = encodeEstablishAck(sessionId);
+        sendSofhFrame(ctx, sbeLength);
 
         this.state = SessionState.ESTABLISHED;
 
@@ -95,13 +117,13 @@ public class B3SessionHandler extends ChannelInboundHandlerAdapter {
     }
 
     private int encodeNegotiateResponse(long sessionId) {
-        headerEncoder.wrap(agronaBuffer, 0)
+        headerEncoder.wrap(writeBuffer, 0)
                 .blockLength(negotiateResponseEncoder.sbeBlockLength())
                 .templateId(negotiateResponseEncoder.sbeTemplateId())
                 .schemaId(negotiateResponseEncoder.sbeSchemaId())
                 .version(negotiateResponseEncoder.sbeSchemaVersion());
 
-        negotiateResponseEncoder.wrap(agronaBuffer, headerEncoder.encodedLength())
+        negotiateResponseEncoder.wrap(writeBuffer, headerEncoder.encodedLength())
                 .sessionId(sessionId)
                 .negotiationStatus(NegotiationStatus.ACCEPTED);
 
