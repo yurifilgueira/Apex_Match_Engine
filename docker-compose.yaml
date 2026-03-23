@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   apex-engine:
-    build: .
+    build:
+      context: .
+      target: java-final
     container_name: apex-matching-engine
     ports:
       - 9090:8080
@@ -13,7 +15,7 @@ services:
     shm_size: '512mb'
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:8080/health > /dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -s http://localhost:8080/orders > /dev/null || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -21,11 +23,14 @@ services:
       - apex-network
 
   apex-gateway:
-    build: .
+    build:
+      context: .
+      target: java-final
     container_name: apex-order-gateway
     entrypoint: ["java", "-jar", "gateway.jar"]
     ports:
       - "8080:8080"
+      - "8081:8081"
     environment:
       - JDK_JAVA_OPTIONS=--add-opens java.base/jdk.internal.misc=ALL-UNNAMED
     volumes:
@@ -37,7 +42,9 @@ services:
       - apex-network
 
   aeron-simulator:
-    build: .
+    build:
+      context: .
+      target: java-final
     container_name: aeron-load-simulator
     entrypoint: [
       "java",
@@ -56,18 +63,18 @@ services:
       - apex-network
 
   k6:
-    image: grafana/k6:latest
+    build:
+      context: .
+      target: k6-final
     container_name: k6-load-tester
     command:
       - run
-      - /scripts/first-test.js
+      - /scripts/k6-binary-test.js
     volumes:
-      - ./apex-engine/src/test/k6-load-tests:/scripts
+      - ./apex-gateway/src/test/load-tests:/scripts
     environment:
-      - HTTP_HOST=apex-gateway
-      - HTTP_PORT=8080
-    depends_on:
-      - apex-gateway
+      - GATEWAY_HOST=apex-order-gateway
+      - GATEWAY_PORT=8081
     networks:
       - apex-network
 

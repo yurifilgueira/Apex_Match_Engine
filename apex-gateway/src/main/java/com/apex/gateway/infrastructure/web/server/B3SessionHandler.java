@@ -34,11 +34,17 @@ public class B3SessionHandler extends ChannelInboundHandlerAdapter {
 
     private final UnsafeBuffer writeBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(128));
 
-    private final OrderPublisher orderPublisher = new OrderPublisher();
+    private final OrderPublisher orderPublisher;
+
+    public B3SessionHandler(OrderPublisher orderPublisher) {
+        this.orderPublisher = orderPublisher;
+    }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         ByteBuf nettyBuffer = (ByteBuf) msg;
+
+        logger.info("Order received!");
 
         try{
             ByteBuffer nioBuffer = nettyBuffer.nioBuffer();
@@ -63,9 +69,10 @@ public class B3SessionHandler extends ChannelInboundHandlerAdapter {
                     break;
                 case 4:
                     handleEstablish(ctx, payloadOffset);
+                    break;
                 default:
                     logger.error("Invalid message type: {}", templateId);
-            }
+                }
         }catch (Exception e) {
             logger.error("Error processing message: ", e);
         }finally {

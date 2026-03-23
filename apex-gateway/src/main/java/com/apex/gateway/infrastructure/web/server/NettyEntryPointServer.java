@@ -1,5 +1,6 @@
 package com.apex.gateway.infrastructure.web.server;
 
+import com.apex.gateway.application.ingress.OrderPublisher;
 import com.apex.gateway.infrastructure.web.server.decode.B3EntryPointDecoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -19,8 +20,13 @@ public class NettyEntryPointServer {
 
     @Value("${apex-engine.server.netty.entrypoint.port:7890}")
     private int port;
+    private final OrderPublisher orderPublisher;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    public NettyEntryPointServer(OrderPublisher orderPublisher) {
+        this.orderPublisher = orderPublisher;
+    }
 
     @PostConstruct
     public void start() {
@@ -37,7 +43,7 @@ public class NettyEntryPointServer {
                             public void initChannel(SocketChannel ch) {
                                 ch.pipeline().addLast(new B3EntryPointDecoder());
                                 ch.pipeline().addLast(new SimpleLoggerHandler());
-                                ch.pipeline().addLast(new B3SessionHandler());
+                                ch.pipeline().addLast(new B3SessionHandler(orderPublisher));
                             }
                         });
 
